@@ -20,3 +20,5 @@ mvnm spring-boot:run
 Once this is complete, open a browser and navigate to http://localhost:8080/swagger-ui.html. 
 
 Here, you can add, update, and retrieve (very simple versions of) employee records. This application uses an H2 in-memory SQL database, so the database is reset to empty whenever you re-start the application. 
+
+To query the in-memory H2 database, browse to http://localhost:8080/h2-console (and login to the database using the credentials in the application.properties file).
