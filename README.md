@@ -15,7 +15,7 @@ Playing about with learning how to create a web API in Java and using Spring Boo
 
 Open a terminal at the root of this project and run:
 ```
-mvnm spring-boot:run
+mvnw spring-boot:run
 ```
 Once this is complete, open a browser and navigate to http://localhost:8080/swagger-ui.html. 
 
