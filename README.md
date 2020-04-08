@@ -10,6 +10,7 @@ Playing about with learning how to create a web API in Java and using Spring Boo
 * SpringFox (for OpenAPI / Swagger)
 * H2 SQL database (in-memory)
 * Project Lombok
+* JUnit unit tests
 
 # Running this project
 
