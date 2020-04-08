@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +15,7 @@ import scott.spring.webapisandbox.webapi.models.request.EmployeeUpdateRequest;
 import scott.spring.webapisandbox.webapi.models.response.EmployeeResponse;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,13 +23,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/employee")
 public class EmployeeController
 {
-	@Autowired
-	private EmployeeRepository _employeeRepository;
+	private final EmployeeRepository _employeeRepository;
 
-	@GetMapping()
+	public EmployeeController(EmployeeRepository employeeRepository) {
+		this._employeeRepository = employeeRepository;
+	}
+
+	@GetMapping("")
 	@ApiOperation(value = "Gets a list of available employees", response = List.class)
 	@ApiResponses(value = {
-		@ApiResponse(code = 200, message = "Successfully retrieved list"),
+		@ApiResponse(code = 200, message = "Successfully retrieved list of employees"),
 		@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
 		@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
 		@ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
@@ -49,11 +52,17 @@ public class EmployeeController
 
 	@GetMapping("{id}")
 	@ApiOperation(value = "Gets an employee by Id")
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "Successfully retrieved employee"),
+		@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+		@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+		@ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+	})
 	public ResponseEntity<EmployeeResponse> getById(
 		@ApiParam(value = "Id of the employee to retrieve.", required = true) @PathVariable(value = "id")
 		Integer employeeId
 	) throws EmployeeNotFoundException {
-		if (employeeId == null) {
+		if (employeeId <= 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
@@ -67,15 +76,16 @@ public class EmployeeController
 
 	@ApiOperation(value = "Creates a new employee.")
 	@PostMapping("")
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "Successfully created employee"),
+		@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+		@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+		@ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+	})
 	public ResponseEntity<EmployeeResponse> create(
-		@ApiParam(value = "Details of the employee to create", required = true)@Valid @RequestBody
+		@ApiParam(value = "Details of the employee to create", required = true) @NotNull @Valid @RequestBody
 			EmployeeCreateRequest employeeRequest
 	) {
-		if (employeeRequest == null ||
-			(employeeRequest.getFirstName() == null && employeeRequest.getLastName() == null)) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-
 		Employee employee = new Employee(
 				null,
 				employeeRequest.getFirstName(),
@@ -89,17 +99,18 @@ public class EmployeeController
 
 	@ApiOperation(value = "Updates an existing employee.")
 	@PutMapping("{id}")
+	@ApiResponses(value = {
+		@ApiResponse(code = 200, message = "Successfully updated employee"),
+		@ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+		@ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+		@ApiResponse(code = 404, message = "The resource you were trying to reach is not found")
+	})
 	public ResponseEntity<EmployeeResponse> update(
 			@ApiParam(value = "Id of the employee to update.", required = true) @PathVariable(value = "id")
 			Integer employeeId,
-			@ApiParam(value = "Update employee object", required = true) @Valid @RequestBody
+			@ApiParam(value = "Update employee object", required = true) @NotNull @Valid @RequestBody
 				EmployeeUpdateRequest employeeRequest
 	) throws EmployeeNotFoundException {
-
-		if (employeeId == null || employeeRequest == null ||
-			(employeeRequest.getFirstName() == null && employeeRequest.getLastName() == null)) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
 
 		Employee employee = _employeeRepository
 				.findById(employeeId)
