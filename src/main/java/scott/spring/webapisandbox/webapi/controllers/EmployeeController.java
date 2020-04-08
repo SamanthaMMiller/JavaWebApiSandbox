@@ -47,7 +47,7 @@ public class EmployeeController
 		return ResponseEntity.ok().body(response);
 	}
 
-	@GetMapping("/{id}")
+	@GetMapping("{id}")
 	@ApiOperation(value = "Gets an employee by Id")
 	public ResponseEntity<EmployeeResponse> getById(
 		@ApiParam(value = "Id of the employee to retrieve.", required = true) @PathVariable(value = "id")
@@ -88,7 +88,7 @@ public class EmployeeController
 	}
 
 	@ApiOperation(value = "Updates an existing employee.")
-	@PutMapping("/{id}")
+	@PutMapping("{id}")
 	public ResponseEntity<EmployeeResponse> update(
 			@ApiParam(value = "Id of the employee to update.", required = true) @PathVariable(value = "id")
 			Integer employeeId,
