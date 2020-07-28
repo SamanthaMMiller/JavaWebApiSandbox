@@ -17,6 +17,7 @@ import scott.spring.webapisandbox.webapi.models.response.EmployeeResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController()
@@ -61,16 +62,18 @@ public class EmployeeController
 	public ResponseEntity<EmployeeResponse> getById(
 		@ApiParam(value = "Id of the employee to retrieve.", required = true) @PathVariable(value = "id")
 		Integer employeeId
-	) throws EmployeeNotFoundException {
+	) {
 		if (employeeId <= 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 
-		Employee employee = _employeeRepository
-				.findById(employeeId)
-				.orElseThrow(() -> new EmployeeNotFoundException("No employee was found with id " + employeeId));
+		Optional<Employee> resultEmployee = _employeeRepository.findById(employeeId);
 
-		EmployeeResponse response = EmployeeResponse.FromEmployee(employee);
+		if (resultEmployee.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		EmployeeResponse response = EmployeeResponse.FromEmployee(resultEmployee.get());
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -110,18 +113,21 @@ public class EmployeeController
 			Integer employeeId,
 			@ApiParam(value = "Update employee object", required = true) @NotNull @Valid @RequestBody
 				EmployeeUpdateRequest employeeRequest
-	) throws EmployeeNotFoundException {
+	) {
 
-		Employee employee = _employeeRepository
-				.findById(employeeId)
-				.orElseThrow(() -> new EmployeeNotFoundException("No employee was found with id " + employeeId));
+		Optional<Employee> resultEmployee = _employeeRepository.findById(employeeId);
+
+		if (resultEmployee.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		Employee employee = resultEmployee.get();
 
 		employee.setLastName(employeeRequest.getLastName());
 		employee.setFirstName(employeeRequest.getFirstName());
+		employee = _employeeRepository.save(employee);
 
-		final Employee updatedEmployee = _employeeRepository.save(employee);
-
-		EmployeeResponse response = EmployeeResponse.FromEmployee(updatedEmployee);
+		EmployeeResponse response = EmployeeResponse.FromEmployee(employee);
 
 		return ResponseEntity.ok(response);
 	}
